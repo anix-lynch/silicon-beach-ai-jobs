@@ -24,12 +24,12 @@ st.set_page_config(
 )
 
 SNOWFLAKE_CONFIG = {
-    'account': 'vwyiycr-rpb51995',
-    'user': 'ANIXLYNCH',
-    'password': 'aRTHMrC5Pos@L76T',
-    'database': 'JOB_SEARCH',
-    'schema': 'MARTS',
-    'warehouse': 'COMPUTE_WH',
+    'account': os.getenv('SNOWFLAKE_ACCOUNT', 'vwyiycr-rpb51995'),
+    'user': os.getenv('SNOWFLAKE_USER', 'ANIXLYNCH'),
+    'password': os.getenv('SNOWFLAKE_PASSWORD'),
+    'database': os.getenv('SNOWFLAKE_DATABASE', 'JOB_SEARCH'),
+    'schema': os.getenv('SNOWFLAKE_SCHEMA', 'MARTS'),
+    'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH'),  # Use X-SMALL for free tier
 }
 
 # ==============================================================================
