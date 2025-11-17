@@ -1,0 +1,63 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.coverage
+.pytest_cache/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Data Files (keep structure but not large files)
+data/*.csv
+data/*.db
+data/raw/*.csv
+data/raw/*.log
+!data/.gitkeep
+
+# Logs
+*.log
+streamlit.log
+streamlit_snowflake.log
+
+# Secrets (NEVER commit)
+.env
+.env.local
+.env.*.local
+config/secrets/
+~/.config/secrets/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Streamlit
+.streamlit/secrets.toml
+
+
+
+scrapers/silicon_beach_perplexity.py
+
+
+.env.secrets
