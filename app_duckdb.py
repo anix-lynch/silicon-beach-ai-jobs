@@ -33,10 +33,13 @@ def get_duckdb_connection():
     """Create DuckDB connection and ensure tables exist"""
     conn = duckdb.connect(DUCKDB_FILE, read_only=False)
     
-    # Check if jobs_cleaned exists, if not create from CSV or empty table
+    # Check if jobs_cleaned exists (table or view), if not create from CSV or empty table
     try:
+        # Try to query it - works for both tables and views
         conn.execute("SELECT COUNT(*) FROM jobs_cleaned").fetchone()
-    except:
+    except Exception as e:
+        # Table/view doesn't exist, try to create
+        st.info("Initializing database...")
         # Table doesn't exist, try to create from CSV files
         import os
         csv_files = [
@@ -60,6 +63,7 @@ def get_duckdb_connection():
         try:
             conn.execute("SELECT COUNT(*) FROM jobs_cleaned").fetchone()
         except:
+            # Create empty table with all possible columns
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS jobs_cleaned (
                     type VARCHAR,
@@ -82,6 +86,23 @@ def get_duckdb_connection():
                     contact_name VARCHAR,
                     contact_email VARCHAR,
                     closest_metro VARCHAR
+                )
+            """)
+        
+        # Also ensure referral_paths table exists
+        try:
+            conn.execute("SELECT COUNT(*) FROM referral_paths").fetchone()
+        except:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS referral_paths (
+                    company VARCHAR,
+                    target_person VARCHAR,
+                    target_title VARCHAR,
+                    connector_name VARCHAR,
+                    connector_relationship VARCHAR,
+                    connection_tier INTEGER,
+                    notes VARCHAR,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
     
