@@ -241,7 +241,7 @@ def create_map(df, selected_commute="All", show_jobs=True, show_vcs=True):
     
     # Filter by type
     if not show_jobs:
-        df = df[df['type'] == 'VC']
+        df = df[df['type'].notna() & (df['type'].str.upper() == 'VC')]
     if not show_vcs:
         df = df[df['type'] != 'VC']
     
@@ -259,17 +259,19 @@ def create_map(df, selected_commute="All", show_jobs=True, show_vcs=True):
     ).add_to(m)
     
     for idx, row in df.iterrows():
-        coords = get_coords(row['area'])
+        coords = get_coords(row.get('area', 'Culver City'))
         
-        # Different colors for VCs vs Jobs
-        is_vc = row.get('type') == 'VC'
+        # Different colors for VCs vs Jobs - handle NaN/None safely
+        row_type = row.get('type')
+        is_vc = pd.notna(row_type) and str(row_type).upper() == 'VC'
         
         if is_vc:
             # Orange pins for VCs
-            if row['commute_score'] >= 100:
+            commute_score = row.get('commute_score', 0)
+            if pd.notna(commute_score) and commute_score >= 100:
                 color = 'orange'
                 icon = 'briefcase'
-            elif row['commute_score'] >= 75:
+            elif pd.notna(commute_score) and commute_score >= 75:
                 color = 'beige'
                 icon = 'briefcase'
             else:
@@ -277,7 +279,8 @@ def create_map(df, selected_commute="All", show_jobs=True, show_vcs=True):
                 icon = 'briefcase'
         else:
             # Green pins for Jobs
-            if row['commute_score'] >= 100:
+            commute_score = row.get('commute_score', 0)
+            if pd.notna(commute_score) and commute_score >= 100:
                 color = 'green'
                 icon = 'star'
             elif row['commute_score'] >= 75:
@@ -325,7 +328,7 @@ def create_map(df, selected_commute="All", show_jobs=True, show_vcs=True):
             coords,
             popup=folium.Popup(popup_html, max_width=300),
             icon=folium.Icon(color=color, icon=icon, prefix='fa'),
-            tooltip=f"{'💼' if is_vc else '💻'} {row['company']} - {row['transit_duration']}"
+            tooltip=f"{'💼' if is_vc else '💻'} {row.get('company', 'Unknown')} - {row.get('transit_duration', 'N/A')}"
         ).add_to(m)
     
     return m
@@ -377,7 +380,7 @@ def main():
         st.header("📍 Job Map")
         
         num_jobs = len(filtered_df[filtered_df['type'] != 'VC']) if 'type' in filtered_df.columns else len(filtered_df)
-        num_vcs = len(filtered_df[filtered_df['type'] == 'VC']) if 'type' in filtered_df.columns else 0
+        num_vcs = len(filtered_df[filtered_df['type'].notna() & (filtered_df['type'].str.upper() == 'VC')]) if 'type' in filtered_df.columns else 0
         
         st.markdown(f"**{num_jobs} tech jobs | {num_vcs} VC firms** | 🟢 Green = Jobs | 🟠 Orange = VCs")
         
