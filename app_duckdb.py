@@ -360,6 +360,12 @@ def main():
     st.markdown("*Tech companies in LA's Silicon Beach area*")
     st.markdown("---")
     
+    # Clear cache button for debugging
+    if st.sidebar.button("🔄 Clear Cache"):
+        st.cache_data.clear()
+        st.cache_resource.clear()
+        st.rerun()
+    
     df = load_jobs()
     
     # Sidebar
