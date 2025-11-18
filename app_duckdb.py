@@ -30,8 +30,62 @@ DUCKDB_FILE = "data/silicon_beach.duckdb"
 
 @st.cache_resource
 def get_duckdb_connection():
-    """Create DuckDB connection"""
-    return duckdb.connect(DUCKDB_FILE, read_only=False)
+    """Create DuckDB connection and ensure tables exist"""
+    conn = duckdb.connect(DUCKDB_FILE, read_only=False)
+    
+    # Check if jobs_cleaned exists, if not create from CSV or empty table
+    try:
+        conn.execute("SELECT COUNT(*) FROM jobs_cleaned").fetchone()
+    except:
+        # Table doesn't exist, try to create from CSV files
+        import os
+        csv_files = [
+            "data/la_vcs_20251111_083756_enriched.csv",
+            "data/builtinla_mcp_20251111_085045.csv",
+        ]
+        
+        for csv_file in csv_files:
+            if os.path.exists(csv_file):
+                try:
+                    df = pd.read_csv(csv_file)
+                    # Standardize column names
+                    df.columns = df.columns.str.lower()
+                    # Create table from first CSV found
+                    conn.execute("CREATE TABLE IF NOT EXISTS jobs_cleaned AS SELECT * FROM df")
+                    break
+                except Exception as e:
+                    st.warning(f"Could not load from {csv_file}: {e}")
+        
+        # If still no table, create empty one with expected schema
+        try:
+            conn.execute("SELECT COUNT(*) FROM jobs_cleaned").fetchone()
+        except:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS jobs_cleaned (
+                    type VARCHAR,
+                    company VARCHAR,
+                    title VARCHAR,
+                    area VARCHAR,
+                    location VARCHAR,
+                    address VARCHAR,
+                    stage VARCHAR,
+                    focus VARCHAR,
+                    transit_duration VARCHAR,
+                    transit_routes VARCHAR,
+                    transit_changes INTEGER,
+                    commute_rating VARCHAR,
+                    commute_score INTEGER,
+                    google_maps_link VARCHAR,
+                    career_url VARCHAR,
+                    job_url VARCHAR,
+                    linkedin_search VARCHAR,
+                    contact_name VARCHAR,
+                    contact_email VARCHAR,
+                    closest_metro VARCHAR
+                )
+            """)
+    
+    return conn
 
 def add_referral(company, target_person, target_title, connector_name, relationship, tier, notes):
     """Add a referral path to DuckDB"""
@@ -90,7 +144,7 @@ def load_jobs():
             contact_email,
             closest_metro
         FROM jobs_cleaned
-        ORDER BY type DESC, commute_score DESC
+        ORDER BY COALESCE(type, 'JOB') DESC, COALESCE(commute_score, 0) DESC
     """).df()
     return df
 
