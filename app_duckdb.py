@@ -38,9 +38,7 @@ def get_duckdb_connection():
         # Try to query it - works for both tables and views
         conn.execute("SELECT COUNT(*) FROM jobs_cleaned").fetchone()
     except Exception as e:
-        # Table/view doesn't exist, try to create
-        st.info("Initializing database...")
-        # Table doesn't exist, try to create from CSV files
+        # Table/view doesn't exist, try to create from CSV files
         import os
         csv_files = [
             "data/la_vcs_20251111_083756_enriched.csv",
@@ -57,7 +55,8 @@ def get_duckdb_connection():
                     conn.execute("CREATE TABLE IF NOT EXISTS jobs_cleaned AS SELECT * FROM df")
                     break
                 except Exception as e:
-                    st.warning(f"Could not load from {csv_file}: {e}")
+                    # Can't use st.warning in cache_resource, just continue
+                    pass
         
         # If still no table, create empty one with expected schema
         try:
