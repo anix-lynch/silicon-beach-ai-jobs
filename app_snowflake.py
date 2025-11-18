@@ -8,9 +8,11 @@ Run: streamlit run app_snowflake.py
 import streamlit as st
 import pandas as pd
 import folium
+import os
 from streamlit_folium import folium_static
 import snowflake.connector
 from datetime import datetime
+from scripts.get_secret import get_secret
 
 # ==============================================================================
 # CONFIG
@@ -23,12 +25,15 @@ st.set_page_config(
 )
 
 SNOWFLAKE_CONFIG = {
-    'account': 'vwyiycr-rpb51995',
-    'user': 'ANIXLYNCH',
-    'password': 'aRTHMrC5Pos@L76T',
-    'database': 'JOB_SEARCH',
-    'warehouse': 'COMPUTE_WH',
+    'account': get_secret('SNOWFLAKE_ACCOUNT', 'vwyiycr-rpb51995'),
+    'user': get_secret('SNOWFLAKE_USER', 'ANIXLYNCH'),
+    'password': get_secret('SNOWFLAKE_PASSWORD'),  # REQUIRED - uses universal secret loader
+    'database': get_secret('SNOWFLAKE_DATABASE', 'JOB_SEARCH'),
+    'warehouse': get_secret('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH'),
 }
+if not SNOWFLAKE_CONFIG['password']:
+    st.error("❌ SNOWFLAKE_PASSWORD environment variable is required")
+    st.stop()
 
 # ==============================================================================
 # DATABASE CONNECTION
@@ -43,24 +48,32 @@ def add_referral(company, target_person, target_title, connector_name, relations
     """Add a referral path to Snowflake"""
     conn = get_snowflake_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO MARTS.REFERRAL_PATHS 
-        (company, target_person, target_title, connector_name, 
-         connector_relationship, connection_tier, notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, [company, target_person, target_title, connector_name, relationship, tier, notes])
-    conn.commit()
-    cursor.close()
+    try:
+        cursor.execute("""
+            INSERT INTO MARTS.REFERRAL_PATHS 
+            (company, target_person, target_title, connector_name, 
+             connector_relationship, connection_tier, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, [company, target_person, target_title, connector_name, relationship, tier, notes])
+        conn.commit()
+    finally:
+        cursor.close()
 
 def get_referrals(company=None):
     """Get all referral paths from Snowflake"""
     conn = get_snowflake_connection()
+    cursor = conn.cursor()
     if company:
-        query = "SELECT * FROM MARTS.REFERRAL_PATHS WHERE company = %s ORDER BY created_at DESC"
-        df = pd.read_sql(query, conn, params=[company])
+        query = "SELECT * FROM MARTS.REFERRAL_PATHS WHERE company = ? ORDER BY created_at DESC"
+        cursor.execute(query, [company])
     else:
         query = "SELECT * FROM MARTS.REFERRAL_PATHS ORDER BY created_at DESC"
-        df = pd.read_sql(query, conn)
+        cursor.execute(query)
+    
+    columns = [desc[0] for desc in cursor.description]
+    rows = cursor.fetchall()
+    df = pd.DataFrame(rows, columns=columns)
+    cursor.close()
     return df
 
 # ==============================================================================
@@ -71,6 +84,7 @@ def get_referrals(company=None):
 def load_jobs():
     """Load job data from Snowflake"""
     conn = get_snowflake_connection()
+    cursor = conn.cursor()
     query = """
         SELECT 
             type,
@@ -93,7 +107,12 @@ def load_jobs():
         FROM STAGING.JOBS_CLEANED
         ORDER BY type DESC, commute_score DESC
     """
-    df = pd.read_sql(query, conn)
+    cursor.execute(query)
+    columns = [desc[0] for desc in cursor.description]
+    rows = cursor.fetchall()
+    df = pd.DataFrame(rows, columns=columns)
+    cursor.close()
+    
     df.columns = df.columns.str.lower()
     
     # Add job_url as alias to career_url for compatibility
@@ -337,14 +356,19 @@ def main():
         if len(referrals) == 0:
             st.info("No referral paths in Snowflake yet. Add your first one above!")
         else:
+            # Convert column names to handle Snowflake's uppercase
+            referrals.columns = referrals.columns.str.upper()
             for idx, ref in referrals.iterrows():
-                with st.expander(f"**{ref['COMPANY']}** - {ref['TARGET_PERSON']} (Tier {ref['CONNECTION_TIER']})"):
-                    st.write(f"**🎯 Target:** {ref['TARGET_PERSON']}")
-                    st.write(f"**💼 Title:** {ref['TARGET_TITLE']}")
-                    st.write(f"**🔗 Via:** {ref['CONNECTOR_NAME']}")
-                    st.write(f"**🤝 Relationship:** {ref['CONNECTOR_RELATIONSHIP']}")
-                    st.write(f"**📝 Notes:** {ref['NOTES']}")
-                    st.caption(f"Added: {ref['CREATED_AT']}")
+                company = ref.get('COMPANY', 'Unknown')
+                target = ref.get('TARGET_PERSON', 'Unknown')
+                tier = ref.get('CONNECTION_TIER', '?')
+                with st.expander(f"**{company}** - {target} (Tier {tier})"):
+                    st.write(f"**🎯 Target:** {ref.get('TARGET_PERSON', 'N/A')}")
+                    st.write(f"**💼 Title:** {ref.get('TARGET_TITLE', 'N/A')}")
+                    st.write(f"**🔗 Via:** {ref.get('CONNECTOR_NAME', 'N/A')}")
+                    st.write(f"**🤝 Relationship:** {ref.get('CONNECTOR_RELATIONSHIP', 'N/A')}")
+                    st.write(f"**📝 Notes:** {ref.get('NOTES', 'N/A')}")
+                    st.caption(f"Added: {ref.get('CREATED_AT', 'N/A')}")
     
     # Company Details Table
     st.markdown("---")
