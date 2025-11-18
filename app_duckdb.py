@@ -28,7 +28,7 @@ DUCKDB_FILE = "data/silicon_beach.duckdb"
 # DATABASE CONNECTION
 # ==============================================================================
 
-@st.cache_resource
+@st.cache_resource(show_spinner=False)
 def get_duckdb_connection():
     """Create DuckDB connection and ensure tables exist"""
     conn = duckdb.connect(DUCKDB_FILE, read_only=False)
@@ -137,7 +137,7 @@ def get_referrals(company=None):
 # LOAD DATA
 # ==============================================================================
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=300, show_spinner=False)
 def load_jobs():
     """Load job and VC data from DuckDB"""
     conn = get_duckdb_connection()
@@ -263,7 +263,11 @@ def create_map(df, selected_commute="All", show_jobs=True, show_vcs=True):
         
         # Different colors for VCs vs Jobs - handle NaN/None safely
         row_type = row.get('type')
-        is_vc = pd.notna(row_type) and str(row_type).upper() == 'VC'
+        # Ensure is_vc is always a boolean, never pandas NA
+        try:
+            is_vc = bool(pd.notna(row_type) and str(row_type).upper() == 'VC')
+        except:
+            is_vc = False
         
         if is_vc:
             # Orange pins for VCs
