@@ -141,32 +141,76 @@ def get_referrals(company=None):
 def load_jobs():
     """Load job and VC data from DuckDB"""
     conn = get_duckdb_connection()
-    df = conn.execute("""
-        SELECT 
-            COALESCE(type, 'JOB') as type,
-            company,
-            title,
-            area,
-            location,
-            address,
-            stage,
-            focus,
-            transit_duration,
-            transit_routes,
-            transit_changes,
-            commute_rating,
-            commute_score,
-            google_maps_link,
-            career_url,
-            job_url,
-            linkedin_search,
-            contact_name,
-            contact_email,
-            closest_metro
+    
+    # First, check what columns actually exist
+    try:
+        columns_info = conn.execute("DESCRIBE jobs_cleaned").fetchall()
+        available_columns = [col[0].lower() for col in columns_info]
+    except:
+        # If describe fails, try to get columns from a sample query
+        try:
+            sample = conn.execute("SELECT * FROM jobs_cleaned LIMIT 1").df()
+            available_columns = [col.lower() for col in sample.columns]
+        except:
+            # Table doesn't exist or is empty, return empty dataframe
+            return pd.DataFrame()
+    
+    # Build SELECT with only columns that exist
+    select_cols = []
+    column_map = {
+        'type': "COALESCE(type, 'JOB') as type",
+        'company': 'company',
+        'title': 'title',
+        'area': 'area',
+        'location': 'location',
+        'address': 'address',
+        'stage': 'stage',
+        'focus': 'focus',
+        'transit_duration': 'transit_duration',
+        'transit_routes': 'transit_routes',
+        'transit_changes': 'transit_changes',
+        'commute_rating': 'commute_rating',
+        'commute_score': 'commute_score',
+        'google_maps_link': 'google_maps_link',
+        'career_url': 'career_url',
+        'job_url': 'job_url',
+        'linkedin_search': 'linkedin_search',
+        'contact_name': 'contact_name',
+        'contact_email': 'contact_email',
+        'closest_metro': 'closest_metro'
+    }
+    
+    for col_name, col_expr in column_map.items():
+        if col_name in available_columns:
+            select_cols.append(col_expr)
+        else:
+            # Add NULL for missing columns
+            if 'as' in col_expr:
+                select_cols.append(f"NULL as {col_expr.split(' as ')[1]}")
+            else:
+                select_cols.append(f"NULL as {col_name}")
+    
+    query = f"""
+        SELECT {', '.join(select_cols)}
         FROM jobs_cleaned
         ORDER BY COALESCE(type, 'JOB') DESC, COALESCE(commute_score, 0) DESC
-    """).df()
-    return df
+    """
+    
+    try:
+        df = conn.execute(query).df()
+        # Ensure all expected columns exist (fill with None if missing)
+        expected_cols = ['type', 'company', 'title', 'area', 'location', 'address', 
+                       'stage', 'focus', 'transit_duration', 'transit_routes', 
+                       'transit_changes', 'commute_rating', 'commute_score',
+                       'google_maps_link', 'career_url', 'job_url', 'linkedin_search',
+                       'contact_name', 'contact_email', 'closest_metro']
+        for col in expected_cols:
+            if col not in df.columns:
+                df[col] = None
+        return df
+    except Exception as e:
+        st.error(f"Error loading jobs: {str(e)}")
+        return pd.DataFrame()
 
 # ==============================================================================
 # GEOCODING
