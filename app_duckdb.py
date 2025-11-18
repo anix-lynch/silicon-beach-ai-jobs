@@ -243,7 +243,7 @@ def create_map(df, selected_commute="All", show_jobs=True, show_vcs=True):
     if not show_jobs:
         df = df[df['type'].notna() & (df['type'].str.upper() == 'VC')]
     if not show_vcs:
-        df = df[df['type'] != 'VC']
+        df = df[df['type'].isna() | (df['type'].str.upper() != 'VC')]
     
     m = folium.Map(
         location=[34.0211, -118.3965],
@@ -290,37 +290,51 @@ def create_map(df, selected_commute="All", show_jobs=True, show_vcs=True):
                 color = 'gray'
                 icon = 'circle'
         
+        # Safe value extraction for popup
+        company = row.get('company', 'Unknown')
+        area = row.get('area', 'N/A')
+        transit_duration = row.get('transit_duration', 'N/A')
+        transit_routes = row.get('transit_routes', 'N/A')
+        commute_rating = row.get('commute_rating', 'N/A')
+        closest_metro = row.get('closest_metro', 'N/A')
+        career_url = row.get('career_url', '#')
+        google_maps_link = row.get('google_maps_link', '#')
+        job_url = row.get('job_url', row.get('career_url', '#'))
+        linkedin_search = row.get('linkedin_search', '#')
+        stage = row.get('stage', 'N/A')
+        focus = row.get('focus', 'N/A')
+        
         if is_vc:
             popup_html = f"""
             <div style="width: 300px">
-                <h4>💼 {row['company']}</h4>
+                <h4>💼 {company}</h4>
                 <b>Type:</b> VC Firm<br>
-                <b>Stage:</b> {row.get('stage', 'N/A')}<br>
-                <b>Focus:</b> {row.get('focus', 'N/A')}<br>
-                <b>Area:</b> {row['area']}<br>
-                <b>Commute:</b> {row['transit_duration']}<br>
-                <b>Routes:</b> {row['transit_routes']}<br>
-                <b>Rating:</b> {row['commute_rating']}<br>
+                <b>Stage:</b> {stage}<br>
+                <b>Focus:</b> {focus}<br>
+                <b>Area:</b> {area}<br>
+                <b>Commute:</b> {transit_duration}<br>
+                <b>Routes:</b> {transit_routes}<br>
+                <b>Rating:</b> {commute_rating}<br>
                 <br>
-                <a href="{row['career_url']}" target="_blank">🔗 Search Careers</a><br>
-                <a href="{row['google_maps_link']}" target="_blank">🗺️ Get Directions</a><br>
-                <a href="{row.get('linkedin_search', '#')}" target="_blank">🔍 Find Partners</a>
+                <a href="{career_url}" target="_blank">🔗 Search Careers</a><br>
+                <a href="{google_maps_link}" target="_blank">🗺️ Get Directions</a><br>
+                <a href="{linkedin_search}" target="_blank">🔍 Find Partners</a>
             </div>
             """
         else:
             popup_html = f"""
             <div style="width: 300px">
-                <h4>💻 {row['company']}</h4>
+                <h4>💻 {company}</h4>
                 <b>Type:</b> Tech Job<br>
-                <b>Area:</b> {row['area']}<br>
-                <b>Commute:</b> {row['transit_duration']}<br>
-                <b>Routes:</b> {row['transit_routes']}<br>
-                <b>Rating:</b> {row['commute_rating']}<br>
-                <b>Metro:</b> {row['closest_metro']}<br>
+                <b>Area:</b> {area}<br>
+                <b>Commute:</b> {transit_duration}<br>
+                <b>Routes:</b> {transit_routes}<br>
+                <b>Rating:</b> {commute_rating}<br>
+                <b>Metro:</b> {closest_metro}<br>
                 <br>
-                <a href="{row['career_url']}" target="_blank">🔗 Career Page</a><br>
-                <a href="{row['google_maps_link']}" target="_blank">🗺️ Get Directions</a><br>
-                <a href="{row.get('job_url', '#')}" target="_blank">👔 Find Hiring Manager</a>
+                <a href="{career_url}" target="_blank">🔗 Career Page</a><br>
+                <a href="{google_maps_link}" target="_blank">🗺️ Get Directions</a><br>
+                <a href="{job_url}" target="_blank">👔 Find Hiring Manager</a>
             </div>
             """
         
@@ -379,7 +393,7 @@ def main():
     with col1:
         st.header("📍 Job Map")
         
-        num_jobs = len(filtered_df[filtered_df['type'] != 'VC']) if 'type' in filtered_df.columns else len(filtered_df)
+        num_jobs = len(filtered_df[filtered_df['type'].isna() | (filtered_df['type'].str.upper() != 'VC')]) if 'type' in filtered_df.columns else len(filtered_df)
         num_vcs = len(filtered_df[filtered_df['type'].notna() & (filtered_df['type'].str.upper() == 'VC')]) if 'type' in filtered_df.columns else 0
         
         st.markdown(f"**{num_jobs} tech jobs | {num_vcs} VC firms** | 🟢 Green = Jobs | 🟠 Orange = VCs")
