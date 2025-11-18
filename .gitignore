@@ -23,10 +23,12 @@ __pycache__/
 
 # Data Files (keep structure but not large files)
 data/*.csv
-data/*.db
+# data/*.db  # Allow DuckDB file for deployment
+# data/silicon_beach.duckdb  # Needed for Streamlit Cloud
 data/raw/*.csv
 data/raw/*.log
 !data/.gitkeep
+!data/silicon_beach.duckdb
 
 # Logs
 *.log
@@ -37,8 +39,12 @@ streamlit_snowflake.log
 .env
 .env.local
 .env.*.local
+.env.*
+*.env
 config/secrets/
 ~/.config/secrets/
+secrets.toml
+.streamlit/secrets.toml
 
 # OS
 .DS_Store
