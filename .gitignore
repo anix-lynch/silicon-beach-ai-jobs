@@ -69,3 +69,4 @@ scrapers/silicon_beach_perplexity.py
 .env.secrets
 SNOWFLAKE_SETUP_MASTER.md
 SECRETS_TO_COPY.txt
+irrelevant/
