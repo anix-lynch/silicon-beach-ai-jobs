@@ -14,13 +14,15 @@ DUCKDB_FILE = "../data/silicon_beach.duckdb"
 
 # Snowflake config
 SNOWFLAKE_CONFIG = {
-    'account': 'vwyiycr-rpb51995',
-    'user': 'ANIXLYNCH',
-    'password': 'aRTHMrC5Pos@L76T',
-    'database': 'JOB_SEARCH',
-    'warehouse': 'COMPUTE_WH',
-    'schema': 'RAW'
+    'account': os.getenv('SNOWFLAKE_ACCOUNT', 'TIQGFZV-GRB26326'),
+    'user': os.getenv('SNOWFLAKE_USER', 'ALYNCH'),
+    'password': os.getenv('SNOWFLAKE_PASSWORD'),  # REQUIRED - set in environment
+    'database': os.getenv('SNOWFLAKE_DATABASE', 'JOB_SEARCH'),
+    'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH'),
+    'schema': os.getenv('SNOWFLAKE_SCHEMA', 'RAW')
 }
+if not SNOWFLAKE_CONFIG['password']:
+    raise ValueError("SNOWFLAKE_PASSWORD environment variable is required")
 
 def load_to_duckdb(csv_file):
     """Load into DuckDB (free forever!)"""
@@ -164,7 +166,7 @@ def show_warehouse_usage():
         conn.close()
     except Exception as e:
         print(f"  ⚠️  Could not fetch usage data: {e}")
-        print(f"  💡 Check manually at: https://app.snowflake.com/vwyiycr/rpb51995/#/compute/warehouses")
+        print(f"  💡 Check manually at: https://app.snowflake.com/tiqgfzv/grb26326/#/compute/warehouses")
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -192,5 +194,5 @@ if __name__ == '__main__':
     print("  • DuckDB: streamlit run app_duckdb.py")
     print("  • Snowflake: streamlit run app_snowflake.py")
     print("  • Both apps show the same data!")
-    print(f"\n📊 Your Snowflake dashboard: https://app.snowflake.com/vwyiycr/rpb51995/")
+    print(f"\n📊 Your Snowflake dashboard: https://app.snowflake.com/tiqgfzv/grb26326/")
 

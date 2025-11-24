@@ -43,12 +43,14 @@ def init_snowflake():
     try:
         import snowflake.connector
         SNOWFLAKE_CONFIG = {
-            'account': 'vwyiycr-rpb51995',
-            'user': 'ANIXLYNCH',
-            'password': 'aRTHMrC5Pos@L76T',
-            'database': 'JOB_SEARCH',
-            'warehouse': 'COMPUTE_WH',
+            'account': os.getenv('SNOWFLAKE_ACCOUNT', 'tiqgfzv-grb26326'),
+            'user': os.getenv('SNOWFLAKE_USER', 'ALYNCH'),
+            'password': os.getenv('SNOWFLAKE_PASSWORD'),  # REQUIRED - set in environment
+            'database': os.getenv('SNOWFLAKE_DATABASE', 'JOB_SEARCH'),
+            'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH'),
         }
+        if not SNOWFLAKE_CONFIG['password']:
+            raise ValueError("SNOWFLAKE_PASSWORD environment variable is required")
         conn = snowflake.connector.connect(**SNOWFLAKE_CONFIG)
         return conn, "snowflake"
     except Exception as e:

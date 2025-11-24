@@ -25,8 +25,8 @@ st.set_page_config(
 )
 
 SNOWFLAKE_CONFIG = {
-    'account': get_secret('SNOWFLAKE_ACCOUNT', 'vwyiycr-rpb51995'),
-    'user': get_secret('SNOWFLAKE_USER', 'ANIXLYNCH'),
+    'account': get_secret('SNOWFLAKE_ACCOUNT', 'tiqgfzv-grb26326'),
+    'user': get_secret('SNOWFLAKE_USER', 'ALYNCH'),
     'password': get_secret('SNOWFLAKE_PASSWORD'),  # REQUIRED - uses universal secret loader
     'database': get_secret('SNOWFLAKE_DATABASE', 'JOB_SEARCH'),
     'warehouse': get_secret('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH'),

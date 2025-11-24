@@ -24,8 +24,8 @@ st.set_page_config(
 )
 
 SNOWFLAKE_CONFIG = {
-    'account': os.getenv('SNOWFLAKE_ACCOUNT', 'vwyiycr-rpb51995'),
-    'user': os.getenv('SNOWFLAKE_USER', 'ANIXLYNCH'),
+    'account': os.getenv('SNOWFLAKE_ACCOUNT', 'TIQGFZV-GRB26326'),
+    'user': os.getenv('SNOWFLAKE_USER', 'ALYNCH'),
     'password': os.getenv('SNOWFLAKE_PASSWORD'),
     'database': os.getenv('SNOWFLAKE_DATABASE', 'JOB_SEARCH'),
     'schema': os.getenv('SNOWFLAKE_SCHEMA', 'MARTS'),
