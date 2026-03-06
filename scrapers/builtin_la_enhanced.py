@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 # CONFIG
 # ==============================================================================
 
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 MAX_DISTANCE_MILES = 10
 
 # APIs

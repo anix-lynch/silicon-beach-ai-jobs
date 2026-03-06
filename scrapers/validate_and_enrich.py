@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 
 def calculate_commute(destination_address, company_name):
     """Get real commute data from Google Maps"""

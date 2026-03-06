@@ -18,14 +18,14 @@ import requests
 # CONFIGURATION
 # ==============================================================================
 
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 MAX_DISTANCE_MILES = 10
 
 # Hunter.io API (from your existing config)
-HUNTER_API_KEY = "REDACTED_HUNTER_KEY"
+HUNTER_API_KEY = os.getenv("HUNTER_API_KEY")
 
 # Google Maps API (from your existing config)
-GOOGLE_MAPS_API_KEY = "REDACTED_MAPS_KEY"
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
 # Job search criteria
 SEARCH_PARAMS = {

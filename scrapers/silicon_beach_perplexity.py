@@ -16,7 +16,7 @@ from datetime import datetime
 
 PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 
 # Silicon Beach companies within 5 miles of Culver City
 SILICON_BEACH_COMPANIES = [

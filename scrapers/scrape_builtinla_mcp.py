@@ -14,7 +14,7 @@ from datetime import datetime
 import requests
 
 # Config
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 
 def scrape_page_with_mcp(page_num):

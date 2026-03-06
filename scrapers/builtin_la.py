@@ -26,7 +26,7 @@ except ImportError:
     from bs4 import BeautifulSoup
 
 # Configuration
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 MAX_DISTANCE_MILES = 10
 BASE_URL = "https://www.builtinla.com"
 

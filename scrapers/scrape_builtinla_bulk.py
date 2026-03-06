@@ -16,7 +16,7 @@ import re
 # API Keys
 FIRECRAWL_API_KEY = os.getenv('FIRECRAWL_API_KEY', 'fc-86fdf55a646d4c009e2f09b7e3c8b929')
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 
 # Built In LA URLs (paginated)
 BASE_URL = "https://www.builtinla.com/companies/office-type/OnSite/Hybrid?city=Los+Angeles&state=California&country=USA&longitude=-117.518005&latitude=34.572168&page={}"

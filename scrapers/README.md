@@ -58,10 +58,10 @@ import requests
 # CONFIGURATION (Shared across all scrapers)
 # ============================================================================
 
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 MAX_DISTANCE_MILES = 10
-HUNTER_API_KEY = "REDACTED_HUNTER_KEY"
-GOOGLE_MAPS_API_KEY = "REDACTED_MAPS_KEY"
+HUNTER_API_KEY = "YOUR_HUNTER_API_KEY"
+GOOGLE_MAPS_API_KEY = YOUR_GOOGLE_MAPS_API_KEY
 
 TECH_KEYWORDS = [
     'aws', 'gcp', 'snowflake', 'bigquery', 'dbt', 'airflow',
@@ -163,11 +163,11 @@ if __name__ == '__main__':
 ### APIs (Already Configured)
 
 **Hunter.io:**
-- Key: `REDACTED_HUNTER_KEY`
+- Key: `YOUR_HUNTER_API_KEY`
 - Function: `get_company_contacts()` from `builtin_la_ultimate.py`
 
 **Google Maps:**
-- Key: `REDACTED_MAPS_KEY`  
+- Key: `os.getenv("GOOGLE_MAPS_API_KEY")`  
 - Function: `calculate_commute()` from `builtin_la_ultimate.py`
 
 ### Common Code

@@ -16,9 +16,9 @@ from datetime import datetime
 # ==============================================================================
 
 FIRECRAWL_API_KEY = "fc-4d8f0ec8ff9b49eb8acf8c19b0d356d7"  # From your .env
-HUNTER_API_KEY = "REDACTED_HUNTER_KEY"
-GOOGLE_MAPS_API_KEY = "REDACTED_MAPS_KEY"
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HUNTER_API_KEY = os.getenv("HUNTER_API_KEY")
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 
 # LA Tech Companies - Organized by area, within 1 hour transit from Culver City
 LA_TECH_COMPANIES = [

@@ -11,7 +11,7 @@ from datetime import datetime
 
 # API Keys
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', 'YOUR_KEY_HERE')
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 
 # VC List (from your research)
 LA_VCS = [

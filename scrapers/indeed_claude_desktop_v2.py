@@ -18,12 +18,12 @@ import requests
 # CONFIGURATION - FROM YOUR EXISTING SETUP
 # ==============================================================================
 
-HOME_ADDRESS = "YOUR_HOME_ADDRESS"
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "YOUR_HOME_ADDRESS")
 MAX_DISTANCE_MILES = 10
 
 # API Keys from your existing builtin_la_ultimate.py
-HUNTER_API_KEY = "REDACTED_HUNTER_KEY"
-GOOGLE_MAPS_API_KEY = "REDACTED_MAPS_KEY"
+HUNTER_API_KEY = os.getenv("HUNTER_API_KEY")
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
 # ==============================================================================
 # INDEED MCP INTEGRATION - CLAUDE DESKTOP HANDLES THIS
