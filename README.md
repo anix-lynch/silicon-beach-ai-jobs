@@ -75,9 +75,8 @@ Folium Maps (Interactive Visualization)
 ### Local Development
 
 ```bash
-# Clone repository
-git clone <your-repo-url>
-cd silicon-beach-jobs
+git clone https://github.com/anix-lynch/silicon-beach-ai-jobs.git
+cd silicon-beach-ai-jobs
 
 # Install dependencies
 pip install -r requirements.txt
