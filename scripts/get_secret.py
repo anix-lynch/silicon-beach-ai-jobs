@@ -29,14 +29,12 @@ def get_secret(key: str, default: Optional[str] = None) -> Optional[str]:
     if value:
         return value
     
-    # Try loading from secret files (in order of preference)
+    # Try loading from project .env files
     secret_paths = [
-        Path.home() / '.config' / 'secrets' / 'global.env',
-        Path.home() / '.secrets' / 'global.env',
         Path.cwd() / '.env',
         Path.cwd() / '.env.local',
-        Path.cwd().parent / '.env',
-        Path.cwd().parent / '.env.local',
+        Path(__file__).resolve().parent.parent / '.env',
+        Path(__file__).resolve().parent.parent / '.env.local',
     ]
     
     for secret_file in secret_paths:
@@ -71,10 +69,9 @@ def load_all_secrets() -> dict:
     secrets = {}
     
     secret_paths = [
-        Path.home() / '.config' / 'secrets' / 'global.env',
-        Path.home() / '.secrets' / 'global.env',
         Path.cwd() / '.env',
         Path.cwd() / '.env.local',
+        Path(__file__).resolve().parent.parent / '.env',
     ]
     
     for secret_file in secret_paths:
